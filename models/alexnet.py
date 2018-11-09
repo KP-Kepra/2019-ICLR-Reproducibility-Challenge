@@ -12,3 +12,5 @@ AlexNet Architecture
 8. FC Layer            : 4096 nodes
 9. Output Layer        : 1000 classes (Softmax)
 '''
+
+# class Alex

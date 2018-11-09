@@ -29,10 +29,12 @@ class LeNet(nn.Module):
     self.fc3 = nn.Linear(84, 10)
 
   def forward(self, x):
+    print(x.shape)
     out = self.pool(F.relu(self.conv1(x)))
     out = self.pool(F.relu(self.conv2(out)))
-    out = out.view(out.size(0), -1)
+    out = out.view(-1, 16 * 5 * 5)
     out = F.relu(self.fc1(out))
     out = F.relu(self.fc2(out))
     out = self.fc3(out)
+    exit()
     return out

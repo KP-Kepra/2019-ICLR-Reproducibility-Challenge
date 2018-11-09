@@ -26,13 +26,13 @@ class MiniAlexNet(nn.Module):
   def __init__(self):
     super(MiniAlexNet, self).__init__()
 
-    self.conv1 = nn.Conv2d(3, 96, 5)
-    self.conv2 = nn.Conv2d(96, 256, 5)
+    self.conv1 = nn.Conv2d(in_channels=3, out_channels=96, kernel_size=5, padding=2)
+    self.conv2 = nn.Conv2d(96, 256, 5, padding=2)
 
     self.conv1_bn = nn.BatchNorm2d(96)
     self.conv2_bn = nn.BatchNorm2d(256)
 
-    self.pool = nn.MaxPool2d(3, 1)
+    self.pool = nn.MaxPool2d(kernel_size=(3, 3), stride=(3, 3), padding=1)
     self.flat  = Flatten()
     self.fc1   = nn.Linear(in_features = 4 * 4 * 256, out_features = 384)
     self.fc2   = nn.Linear(384, 192)

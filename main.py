@@ -31,60 +31,89 @@ from models import *
 #     # cifar_train_data = cifar_train_data_dict[b'data']
 # print(cifar_label_names)
 
+# 32x32 for LeNet
+# 28x28 for MiniAlexNet
+
 transform = transforms.Compose([
+    transforms.Resize(28),
     transforms.ToTensor(), 
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-)
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+])
 
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=False, transform=transform)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True, num_workers=2)
+trainset = torchvision.datasets.CIFAR10(
+              root='./data', train=True, 
+              download=False, transform=transform)
 
-testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=False, transform=transform)
-testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
-print(trainset)
+trainloader = torch.utils.data.DataLoader(
+              trainset, batch_size=4, 
+              shuffle=True, num_workers=3)
+
+testset = torchvision.datasets.CIFAR10(
+              root='./data', train=False, 
+              download=False, transform=transform)
+
+testloader = torch.utils.data.DataLoader(
+              testset, batch_size=4, 
+              shuffle=False, num_workers=3)
+
 # Training data 
-
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(device)
 
 # Define the network
-net = LeNet()
+# net = LeNet()
+net = MiniAlexNet()
 net.to(device)
 net.cuda()
 
 # Loss Function and Optimizer
-# loss_fn = nn.CrossEntropyLoss()
-loss_fn = nn.MSELoss(reduction='sum')
-# optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-learning_rate = 1e-3
+loss_fn = nn.CrossEntropyLoss()
+# loss_fn = nn.MSELoss(reduction='sum')
+
+optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+
 # Train
 for epoch in range(2):
   running_loss = 0.0
-  for i, data in enumerate(trainloader):
+  for i, data in enumerate(trainloader, 0):
 
     # Get the inputs
     inputs, labels = data
-    inputs, labels = inputs.to(device).float(), labels.to(device).float()
-    # optimizer.zero_grad()
-    net.zero_grad()
-
+    inputs, labels = inputs.to(device), labels.to(device)
+    # print(inputs.shape)
+    optimizer.zero_grad()
     output = net(inputs)
-    print(output.size(), labels.size())
     loss = loss_fn(output, labels)
-
     loss.backward()
+    optimizer.step()
 
-    with torch.no_grad():
-      for param in net.parameters():
-        param.data -= learning_rate * param.grad
-    
     running_loss += loss.item()
-    if i % 2000 == 0:
+
+    if i % 2000 == 1999:
       print('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, i + 1, running_loss / 2000))
+            (epoch + 1, i + 1, running_loss / 2000))
       running_loss = 0.0
 
 print('Finished Training')
 
 # Test
-    
+dataiter = iter(testloader)
+images, labels = dataiter.next()
+images, labels = images.to(device), labels.to(device)
+
+output = net(images)
+_, predicted = torch.max(output, 1)
+
+correct = 0
+total = 0
+with torch.no_grad():
+  for data in testloader:
+    images, labels = data
+    images, labels = images.to(device), labels.to(device)
+    outputs  = net(images)
+    _, predicted = torch.max(outputs.data, 1)
+    total += labels.size(0)
+    correct += (predicted == labels).sum().item()
+
+print('Accuracy of network over 10k test images %d %%' % (
+  100 * correct / total ))
+
