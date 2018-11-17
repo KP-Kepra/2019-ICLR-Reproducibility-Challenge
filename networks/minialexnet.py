@@ -25,7 +25,6 @@ class Flatten(nn.Module):
 class MiniAlexNet(nn.Module):
   def __init__(self):
     super(MiniAlexNet, self).__init__()
-
     self.conv1 = nn.Conv2d(in_channels=3, out_channels=96, kernel_size=5, padding=2)
     self.conv2 = nn.Conv2d(96, 256, 5, padding=2)
 
@@ -38,13 +37,29 @@ class MiniAlexNet(nn.Module):
     self.fc2   = nn.Linear(384, 192)
     self.fc3   = nn.Linear(192, 10)
 
+    self.features = nn.Sequential(
+        self.conv1,
+        nn.ReLU(),
+        self.pool,
+        self.conv1_bn,
+        self.conv2,
+        nn.ReLU(),
+        self.pool,
+        self.conv2_bn,
+    )
+
+    self.classifier = nn.Sequential(
+      self.flat,
+      self.fc1,
+      nn.ReLU(), 
+      self.fc2,
+      nn.ReLU(), 
+      self.fc3
+    )    
+
   def forward(self, x):
-    out = self.conv1_bn(self.pool(F.relu(self.conv1(x))))
-    out = self.conv2_bn(self.pool(F.relu(self.conv2(out))))
-    out = self.flat(out)
-    out = F.relu(self.fc1(out))
-    out = F.relu(self.fc2(out))
-    out = self.fc3(out)
+    x = self.features(x)
+    out = self.classifier(x)
     return out
 
   def init_weights(self, m):

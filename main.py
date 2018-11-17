@@ -4,6 +4,7 @@ import torchvision
 import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.optim as optim
+import powerlaw
 
 from networks import *
 
@@ -72,7 +73,7 @@ loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
 # Train
-for epoch in range(2):
+for epoch in range(10):
   running_loss = 0.0
   for i, data in enumerate(trainloader, 0):
 
