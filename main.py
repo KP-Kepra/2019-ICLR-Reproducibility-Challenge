@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.optim as optim
 
-from models import *
+from networks import *
 
 # def unpickle(file):
 #   import pickle
@@ -94,6 +94,8 @@ for epoch in range(2):
       running_loss = 0.0
 
 print('Finished Training')
+
+torch.save(net.state_dict(), './models/' + str(net._get_name()) + '.pt')
 
 # Test
 dataiter = iter(testloader)
