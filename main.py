@@ -46,7 +46,7 @@ trainset = torchvision.datasets.CIFAR10(
               download=False, transform=transform)
 
 trainloader = torch.utils.data.DataLoader(
-              trainset, batch_size=4, 
+              trainset, batch_size=250, 
               shuffle=True, num_workers=3)
 
 testset = torchvision.datasets.CIFAR10(
@@ -54,7 +54,7 @@ testset = torchvision.datasets.CIFAR10(
               download=False, transform=transform)
 
 testloader = torch.utils.data.DataLoader(
-              testset, batch_size=4, 
+              testset, batch_size=250, 
               shuffle=False, num_workers=3)
 
 # Training data 
@@ -89,7 +89,7 @@ for epoch in range(10):
 
     running_loss += loss.item()
 
-    if i % 2000 == 1999:
+    if i % 50 == 49:
       print('[%d, %5d] loss: %.3f' %
             (epoch + 1, i + 1, running_loss / 2000))
       running_loss = 0.0

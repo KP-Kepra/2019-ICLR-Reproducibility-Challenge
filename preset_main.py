@@ -3,10 +3,10 @@ import torchvision.models as models
 import matplotlib.pyplot as plt
 import torch.nn as nn
 import torch
-import powerlaw
 import numpy as np
 from scipy.linalg import svd
 
+import pl, mp
 from networks import *
 
 plt.tight_layout()
@@ -22,26 +22,20 @@ for i, module in enumerate(model.modules()):
   if isinstance(module, nn.Linear):
     print(i, module)
 
-    if i == 8:
-      print(i, module)
+    if i == 7:
       W_tensor = module.weight.data.clone().to(device)
-      W = np.array(W_tensor)
-      W = W / np.linalg.norm(W)
-      # WW = np.dot(W.transpose(), W)
-      # ev, _ = np.linalg.eig(WW)
-      # ev8 = ev
-      # print(ev8)
-      # print(ev8.shape)
+      W = np.array(W_tensor)  
+
+      M, N = np.min(W.shape), np.max(W.shape)
+      Q = N/M
+
       u, sv, sh = svd(W)
-      # svd = TruncatedSVD(n_components=M, n_iter=7, random_state=10)
-      # svd.fit(W)
-      # svals = svd.singular_values_
 
       # Eigenvalues = square of singular values
-      evals = sv * sv
-      print(evals.shape)
-      # fit = powerlaw.Fit(evals, xmax=np.max(evals), verbose=False)
-      # alpha, D = fit.alpha, fit.D
-      plt.hist(evals, bins=100, density=True)
+      evs = sv * sv
+      fit = pl.fit_powerlaw(evs)
+      pl.plot_powerlaw(fit)
 
-      plt.show()
+      evs = evs[evs<10]
+      x_min, x_max = 0, np.max(evs)
+      sigma = mp.plot_ESD_MP(evs, Q, 100)
