@@ -18,4 +18,26 @@ class Flatten(nn.Module):
     return input.view(input.size(0), -1)
 
 class MLP3(nn.Module):
-  def __init
+  def __init__(self):
+    super(MLP3, self).__init__()
+
+    self.flat = Flatten()
+
+    self.classifier = nn.Sequential(
+      self.flat,
+      nn.Linear(28 * 28 * 3, 512),
+      nn.ReLU(),
+      nn.Linear(512, 512),
+      nn.ReLU(),
+      nn.Linear(512, 512),
+      nn.ReLU(),
+      nn.Linear(512, 10)
+    )
+
+  def forward(self, x):
+    out = self.classifier(x)
+    return out
+
+  def init_weights(self, m):
+    torch.nn.init.xavier_normal_(m.weight)
+    m.bias.data.fill_(0.1)
