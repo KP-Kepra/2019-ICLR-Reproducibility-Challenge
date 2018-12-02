@@ -8,30 +8,6 @@ import powerlaw
 
 from networks import *
 
-# def unpickle(file):
-#   import pickle
-#   with open(file, 'rb') as f:
-#     dict = pickle.load(f, encoding='bytes')
-#   return dict
-
-# data_dir = 'data/cifar-10-batches-py'
-
-# meta_data_dict = unpickle(data_dir + '/batches.meta')
-# print(meta_data_dict)
-# cifar_label_names = meta_data_dict[b'label_names']
-# cifar_label_names = np.array(cifar_label_names)
-
-# cifar_train_data = None
-# cifar_train_filenames = []
-# cifar_train_labels = []
-
-# for i in range(1, 6):
-#   cifar_train_data_dict = unpickle(data_dir + '/data_batch_{}'.format(i))
-#   print(cifar_train_data_dict[b'data'])
-#   # if i == 1:
-#     # cifar_train_data = cifar_train_data_dict[b'data']
-# print(cifar_label_names)
-
 # 32x32 for LeNet
 # 28x28 for MiniAlexNet
 
@@ -41,12 +17,14 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
+batch_size = 4
+
 trainset = torchvision.datasets.CIFAR10(
               root='./data', train=True, 
               download=False, transform=transform)
 
 trainloader = torch.utils.data.DataLoader(
-              trainset, batch_size=250, 
+              trainset, batch_size=batch_size, 
               shuffle=True, num_workers=3)
 
 testset = torchvision.datasets.CIFAR10(
@@ -54,7 +32,7 @@ testset = torchvision.datasets.CIFAR10(
               download=False, transform=transform)
 
 testloader = torch.utils.data.DataLoader(
-              testset, batch_size=250, 
+              testset, batch_size=batch_size, 
               shuffle=False, num_workers=3)
 
 # Training data 
@@ -63,6 +41,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # Define the network
 # net = LeNet()
 net = MiniAlexNet()
+net.apply(net.init_weights)
 net.to(device)
 net.cuda()
 
@@ -70,7 +49,7 @@ net.cuda()
 loss_fn = nn.CrossEntropyLoss()
 # loss_fn = nn.MSELoss(reduction='sum')
 
-optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+optimizer = optim.SGD(net.parameters(), lr=0.01, momentum=0.9)
 
 # Train
 for epoch in range(10):
@@ -90,22 +69,15 @@ for epoch in range(10):
     running_loss += loss.item()
 
     if i % 50 == 49:
-      print('[%d, %5d] loss: %.3f' %
-            (epoch + 1, i + 1, running_loss / 2000))
+      print('[%d, %5d] batch: %d loss: %.3f' %
+            (epoch + 1, (i + 1) * batch_size, batch_size, running_loss / 2000))
       running_loss = 0.0
 
 print('Finished Training')
 
-torch.save(net.state_dict(), './models/' + str(net._get_name()) + '.pt')
+torch.save(net.state_dict(), './models/' + str(net._get_name()) + '-' + str(batch_size) + '.pt')
 
 # Test
-dataiter = iter(testloader)
-images, labels = dataiter.next()
-images, labels = images.to(device), labels.to(device)
-
-output = net(images)
-_, predicted = torch.max(output, 1)
-
 correct = 0
 total = 0
 with torch.no_grad():

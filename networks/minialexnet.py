@@ -55,7 +55,7 @@ class MiniAlexNet(nn.Module):
       self.fc2,
       nn.ReLU(), 
       self.fc3
-    )    
+    )
 
   def forward(self, x):
     x = self.features(x)
@@ -63,8 +63,9 @@ class MiniAlexNet(nn.Module):
     return out
 
   def init_weights(self, m):
-    if type(m) == nn.Linear:
-      torch.nn.init.xavier_uniform(m.weight)
-      m.bias.data.fill_(0.01)
+    if type(m) == nn.Linear or type(m) == nn.Conv2d:
+      torch.nn.init.xavier_normal_(m.weight)
+      m.bias.data.fill_(0.1)
+    
 
 
