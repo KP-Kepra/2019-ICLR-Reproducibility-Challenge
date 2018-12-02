@@ -12,7 +12,7 @@ from networks import *
 
 plt.tight_layout()
 
-pt = torch.load('models/MiniAlexNet-32.pt')
+pt = torch.load('models/MiniAlexNet-8.pt')
 model = MiniAlexNet()
 model.load_state_dict(pt)
 # model =  models.alexnet(pretrained=True)
@@ -55,8 +55,6 @@ for i, module in enumerate(model.modules()):
       # fit = pl.fit_powerlaw(evs)
       # pl.plot_powerlaw(fit)
 
-      print(evs.shape)
-      sigma = mp.fit_mp(evs, Q)
-      sigma = mp.plot_ESD_MP(evs, Q, 30)
+      sigma = mp.plot_ESD_MP(evs, Q, 100)
       sr = mp.calc_mp_soft_rank(evals=evs,Q=Q, sigma=sigma)
       print(sr)
