@@ -14,9 +14,10 @@ from networks import *
 
 plt.tight_layout()
 
-pt = torch.load('models/MiniAlexNet-8.pt')
-model = MiniAlexNet()
-model.load_state_dict(pt)
+# pt = torch.load('models/MiniAlexNet-8.pt')
+# model = MiniAlexNet()
+model = LeNet()
+# model.load_state_dict(pt)
 # model =  models.alexnet(pretrained=True)
 
 device = torch.device('cuda:0')
@@ -70,7 +71,7 @@ stable_ranks = []
 soft_ranks = []
 
 transform = transforms.Compose([
-    transforms.Resize(28),
+    transforms.Resize(32),
     transforms.ToTensor(), 
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
@@ -80,11 +81,11 @@ testset = torchvision.datasets.CIFAR10(
               download=False, transform=transform)
 
 testloader = torch.utils.data.DataLoader(
-              testset, batch_size=100, 
+              testset, batch_size=64, 
               shuffle=False, num_workers=3)
 
 for batch in batch_list:
-  model_name = 'models/MiniAlexNet-' + str(batch) + '.pt'
+  model_name = 'models/LeNet-' + str(batch) + '.pt'
   pt = torch.load(model_name)
   model.load_state_dict(pt)
   model.to(device)

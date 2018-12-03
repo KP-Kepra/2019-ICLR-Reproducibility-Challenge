@@ -1,7 +1,7 @@
 '''
 LeNet5 Structure
 
-0. Input Layer         : 3 channels, 32x32
+0. Input Layer         : 3 channels, 28x28
 1. Convolutional Layer : 6 feature maps, 28x28
 2. Subsampling Layer   : 6 feature maps, 14x14
 3. Convolutional layer : 16 feature maps, 10x10
@@ -13,28 +13,33 @@ LeNet5 Structure
 
 import torch
 import torch.nn as nn 
-import torch.nn.functional as F
 
-class LeNet(nn.Module):
+from networks.net_base import Net, Flatten
+
+class LeNet(Net):
   def __init__(self):
     super(LeNet, self).__init__()
 
-    self.conv1 = nn.Conv2d(in_channels = 3, out_channels = 6, kernel_size = 5)
-    self.conv2 = nn.Conv2d(6, 16, 5) 
+    self.conv1 = nn.Conv2d(in_channels = 1, out_channels = 20, kernel_size = 5, padding=1)
+    self.conv2 = nn.Conv2d(20, 50, 5, 1) 
+
+    self.flat = Flatten()
 
     self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
 
-    self.fc1 = nn.Linear(in_features = 16 * 5 * 5, out_features = 120)
-    self.fc2 = nn.Linear(120, 84)
-    self.fc3 = nn.Linear(84, 10)
+    self.fc1 = nn.Linear(in_features = 4 * 4 * 50, out_features = 500)
+    self.fc2 = nn.Linear(500, 10)
 
-  def forward(self, x):
-    print(x.shape)
-    out = self.pool(F.relu(self.conv1(x)))
-    out = self.pool(F.relu(self.conv2(out)))
-    out = out.view(-1, 16 * 5 * 5)
-    out = F.relu(self.fc1(out))
-    out = F.relu(self.fc2(out))
-    out = self.fc3(out)
-    exit()
-    return out
+    self.classifier = nn.Sequential(
+      # CONV-1
+      self.conv1, nn.ReLU(), self.pool,
+
+      # CONV-2
+      self.conv2, nn.ReLU(), self.pool,
+
+      # FC-1
+      self.flat, self.fc1, nn.ReLU(),
+
+      # FC-2
+      self.fc2
+    )

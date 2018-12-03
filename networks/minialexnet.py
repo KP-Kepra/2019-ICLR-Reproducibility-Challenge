@@ -16,13 +16,10 @@ MiniALexNet Structure
 
 import torch 
 import torch.nn as nn 
-import torch.nn.functional as F
 
-class Flatten(nn.Module):
-  def forward(self, input):
-    return input.view(input.size(0), -1)
+from networks.net_base import Net, Flatten
 
-class MiniAlexNet(nn.Module):
+class MiniAlexNet(Net):
   def __init__(self):
     super(MiniAlexNet, self).__init__()
     self.conv1 = nn.Conv2d(in_channels=3, out_channels=96, kernel_size=5, padding=2)
@@ -37,35 +34,19 @@ class MiniAlexNet(nn.Module):
     self.fc2   = nn.Linear(384, 192)
     self.fc3   = nn.Linear(192, 10)
 
-    self.features = nn.Sequential(
-        self.conv1,
-        nn.ReLU(),
-        self.pool,
-        self.conv1_bn,
-        self.conv2,
-        nn.ReLU(),
-        self.pool,
-        self.conv2_bn,
-    )
-
     self.classifier = nn.Sequential(
-      self.flat,
-      self.fc1,
-      nn.ReLU(), 
-      self.fc2,
-      nn.ReLU(), 
+      # CONV-1
+      self.conv1, nn.ReLU(), self.pool, self.conv1_bn,
+
+      # CONV-2
+      self.conv2, nn.ReLU(), self.pool, self.conv2_bn, 
+      
+      # FC-1
+      self.flat, self.fc1, nn.ReLU(), 
+      
+      # FC-2 
+      self.fc2, nn.ReLU(),
+
+      # FC-3 
       self.fc3
     )
-
-  def forward(self, x):
-    x = self.features(x)
-    out = self.classifier(x)
-    return out
-
-  def init_weights(self, m):
-    if type(m) == nn.Linear or type(m) == nn.Conv2d:
-      torch.nn.init.xavier_normal_(m.weight)
-      m.bias.data.fill_(0.1)
-    
-
-

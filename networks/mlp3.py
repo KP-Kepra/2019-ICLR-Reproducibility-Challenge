@@ -11,11 +11,8 @@ MLP3 Structure
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
-class Flatten(nn.Module):
-  def forward(self, input):
-    return input.view(input.size(0), -1)
+from networks.net_base import Net, Flatten
 
 class MLP3(nn.Module):
   def __init__(self):
@@ -23,21 +20,26 @@ class MLP3(nn.Module):
 
     self.flat = Flatten()
 
+    self.fc1 = nn.Linear(in_features = 28 * 28 * 3, out_features = 512)
+    self.fc512 = nn.Linear(512, 512)
+    self.fc_out = nn.Linear(512, 10)
+
     self.classifier = nn.Sequential(
+      # Flat
       self.flat,
-      nn.Linear(28 * 28 * 3, 512),
+
+      # FC 28*28*3 - 512
+      self.fc1,
       nn.ReLU(),
-      nn.Linear(512, 512),
+
+      # FC 512 - 512
+      self.fc512,
       nn.ReLU(),
-      nn.Linear(512, 512),
+
+      # FC 512 - 512
+      self.fc512,
       nn.ReLU(),
-      nn.Linear(512, 10)
+
+      # Out
+      self.fc_out
     )
-
-  def forward(self, x):
-    out = self.classifier(x)
-    return out
-
-  def init_weights(self, m):
-    torch.nn.init.xavier_normal_(m.weight)
-    m.bias.data.fill_(0.1)
