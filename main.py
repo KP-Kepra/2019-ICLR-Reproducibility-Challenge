@@ -4,7 +4,7 @@ from tools import *
 import trainer
 
 # MiniAlexNet epoch : 10
-MLP3 epoch : 50
+# MLP3 epoch : 50
 AllenNLP
 
 # LeNet Training
