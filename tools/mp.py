@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from scipy import optimize
 import numpy as np
 
+np.warnings.filterwarnings('ignore')
+
 def calc_lambda_plus(Q, sigma):
     return np.power(sigma*(1 + np.sqrt(1/Q)),2)
 
@@ -14,7 +16,7 @@ def calc_mp_soft_rank(evals, Q, sigma):
 ''' Marchenko-Pastur Distribution Section '''
 def marchenko_pastur_pdf(x, Q, sigma=1):
     y=1/Q
-
+    # x=np.arange(0,np.max(x),0.001)
     b=np.power(sigma*(1 + np.sqrt(1/Q)),2) # Largest eigenvalue
     a=np.power(sigma*(1 - np.sqrt(1/Q)),2) # Smallest eigenvalue
     return x, (1/(2*np.pi*sigma*sigma*x*y))*np.sqrt((b-x)*(x-a))
@@ -26,8 +28,9 @@ def calc_sigma(evs, Q):
   sigma = np.sqrt(sigma2)
   return sigma
 
-def plot_ESD_MP(evs, Q, num_spikes):
-  y_hist, x_hist, _ = plt.hist(evs, bins=100, density=True)
+def plot_ESD_MP(evs, Q, num_spikes, epoch):
+  plt.figure()
+  y_hist, x_hist, _ = plt.hist(evs, bins=100, density=True, label="$p_{emp}\lambda$")
 
   evs = np.sort(evs)[::-1][num_spikes:]
 
@@ -39,24 +42,27 @@ def plot_ESD_MP(evs, Q, num_spikes):
   percent_mass = 100.0*(num_spikes)/len(evs)
 
   x, mp = marchenko_pastur_pdf(evs, Q, sigma)
-  mp[np.isnan(mp)] = 0
+  # mp[np.isnan(mp)] = 0
 
   # PORTION OF AREAS UNDER MP
   x_hist = x_hist[x_hist < np.max(mp)]
   hist_cut = y_hist[:x_hist.shape[0]]
   total = np.sum(hist_cut) / np.sum(y_hist)
-  print(total)
+  print("Total: ", total)
 
-  mp *= np.max(y_hist) / np.max(mp)
-  
+  # mp *= np.max(y_hist) / np.max(mp)
+  plt.title("LeNet FC1: ESD", fontsize=20)
+  # plt.title("AlexNet FC1: ESD", fontsize=20)
+  plt.ylabel("Spectral Density", fontsize=18)
+  plt.xlabel("Eigenvalues", fontsize=18)
+  plt.rc('xtick',labelsize=14)
+  plt.rc('ytick',labelsize=14)
   plt.plot(x, mp, linewidth=1, color = 'r', label="MP fit")
-
-  plt.show()
+  plt.legend()
 
   return sigma
 
 def resid_mp(p, evals, Q, num_spikes=0, bw=0.1, debug=False):  
-    "residual that floats sigma but NOT Q or num_spikes YET, 10% cutoff each edge"
     sigma = p
 
     # kernel density estimator

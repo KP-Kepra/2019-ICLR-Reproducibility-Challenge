@@ -31,13 +31,14 @@ def best_dist(fit):
 def fit_powerlaw(evs):
   return powerlaw.Fit(evs, xmax=np.max(evs), verbose = False)
 
-def plot_powerlaw(fit):
+def plot_powerlaw(fit, batch):
+  plt.figure()
   alpha, D, best_pl = fit.alpha, fit.D, best_dist(fit)
   print("Alpha: ", alpha)
   print("D: ", D)
   print("Best PL: ", best_pl)
+  plt.title("Mini AlexNet FC2: Powerlaw\n 10 runs; Batch size: " + str(batch), fontsize=20)
   fig2 = fit.plot_pdf(color='b', linewidth=2)
   fit.power_law.plot_pdf( color= 'b',linestyle='--',label='fit ccdf', ax=fig2)
   fit.plot_ccdf(color='r', linewidth=2, ax=fig2)
   fit.power_law.plot_ccdf(color='r', linestyle='--', ax=fig2)
-  plt.show()

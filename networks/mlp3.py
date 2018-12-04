@@ -14,7 +14,7 @@ import torch.nn as nn
 
 from networks.net_base import Net, Flatten
 
-class MLP3(nn.Module):
+class MLP3(Net):
   def __init__(self):
     super(MLP3, self).__init__()
 
@@ -29,16 +29,13 @@ class MLP3(nn.Module):
       self.flat,
 
       # FC 28*28*3 - 512
-      self.fc1,
-      nn.ReLU(),
+      self.fc1, nn.ReLU(),
 
       # FC 512 - 512
-      self.fc512,
-      nn.ReLU(),
+      self.fc512, nn.ReLU(),
 
       # FC 512 - 512
-      self.fc512,
-      nn.ReLU(),
+      self.fc512, nn.ReLU(),
 
       # Out
       self.fc_out

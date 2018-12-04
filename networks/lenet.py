@@ -2,12 +2,11 @@
 LeNet5 Structure
 
 0. Input Layer         : 3 channels, 28x28
-1. Convolutional Layer : 6 feature maps, 28x28
-2. Subsampling Layer   : 6 feature maps, 14x14
-3. Convolutional layer : 16 feature maps, 10x10
-4. Subsampling layer   : 16 feature maps, 5x5
-5. FC Layer            : 120 feature maps
-6. FC Layer            : 84 feature maps
+1. Convolutional Layer : 20 feature maps, 28x28
+2. Subsampling Layer   : 20 feature maps, 14x14
+3. Convolutional layer : 50 feature maps, 14x14
+4. Subsampling layer   : 50 feature maps, 7x7
+5. FC Layer            : 500 feature maps
 7. Output Layer        : 10 feature maps.
 '''
 
@@ -43,3 +42,4 @@ class LeNet(Net):
       # FC-2
       self.fc2
     )
+    
