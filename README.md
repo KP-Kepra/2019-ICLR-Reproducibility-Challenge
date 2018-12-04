@@ -9,6 +9,4 @@ Tools:
 - Powerlaw
 - Numpy
 - Scipy
-- Scikit-learn
-
-Rest of Readme WIP
+- Scikit-lear
